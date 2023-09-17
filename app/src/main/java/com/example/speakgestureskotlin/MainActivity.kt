@@ -65,7 +65,7 @@ class MainActivity : Activity() {
         cc_text += " $newText"
 
         if (cc_text.split(" ").size > cc_maxWords) {
-            cc_text = cc_text
+            cc_text = newText
         }
 
         binding.closedCaption.text = cc_text
