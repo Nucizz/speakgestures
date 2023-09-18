@@ -9,6 +9,11 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
+import com.example.speakgestureskotlin.ml.BisindoModelV9
+import org.tensorflow.lite.DataType
+import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import java.nio.ByteBuffer
 
 class MainActivity : Activity() {
 
@@ -16,8 +21,7 @@ class MainActivity : Activity() {
     private var flash: Boolean = false
     private var tts: Boolean = false
 
-    // Declare model class here
-//    private lateinit var modelRecognition
+    private lateinit var modelRecognition: BisindoModelV9
 
     private lateinit var camera_manager: CameraManager
     private var camera_id: String? = null
@@ -32,12 +36,18 @@ class MainActivity : Activity() {
 
         initCamera()
 
-        /*
-        modelRecognition.setRecognitionListener { recognizedText ->
-            updateCaption(recognizedText)
-        }
-        modelRecognition.start()
-        */
+        modelRecognition = BisindoModelV9.newInstance(applicationContext)
+
+        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 30, 1662), DataType.FLOAT32)
+
+        val outputs = modelRecognition.process(inputFeature0)
+        val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+
+//        modelRecognition.setRecognitionListener { recognizedText ->
+//            updateCaption(recognizedText)
+//        }
+
+
 
         binding.flashButton.setOnClickListener{
             flash = !flash
