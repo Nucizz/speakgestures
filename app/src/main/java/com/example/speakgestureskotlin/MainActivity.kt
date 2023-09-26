@@ -15,7 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
 
 
-class MainActivity : FragmentActivity() {
+class MainActivity : FragmentActivity(), CaptionCallback {
 
     private lateinit var binding: ActivityMainBinding
     private var flash: Boolean = false
@@ -27,6 +27,8 @@ class MainActivity : FragmentActivity() {
     private val cc_maxWords = 10
     private var cc_text = ""
     private var cc_timeout = 3000L
+
+    private var captionListener: CaptionCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,23 +67,38 @@ class MainActivity : FragmentActivity() {
         binding.closedCaption.text = ""
 
         setContentView(binding.root)
+
+
     }
 
-    fun updateCaption(newText: String) {
+    private fun updateCaption(newText: String) {
         cc_text += " $newText"
 
         if (cc_text.split(" ").size > 3) {
             cc_text = newText
         }
 
-        binding.closedCaption.text = cc_text
+//        System.out.println(cc_text)
 
-        val handler = Handler(Looper.getMainLooper())
-        handler.removeCallbacksAndMessages(null)
-        handler.postDelayed({
-            cc_text = ""
-            binding.closedCaption.text = ""
-        }, 3000)
+        //harus diganti di Thread UI, kalo ga error
+        runOnUiThread{
+            binding.closedCaption.text = cc_text
+        }
+
+//        binding.closedCaption.text = cc_text
+
+//        val handler = Handler(Looper.getMainLooper())
+//        handler.removeCallbacksAndMessages(null)
+//        handler.postDelayed({
+//            cc_text = ""
+//            binding.closedCaption.text = ""
+//        }, 3000)
+    }
+
+    //implementasi callback CaptionCallback
+    override fun onNewCaptionDetected(gesture: String) {
+        updateCaption(gesture)
+//        System.out.println(gesture)
     }
 
 

@@ -41,6 +41,7 @@ import java.util.Locale.Category
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 class CameraFragment : Fragment(),
     GestureRecognizerHelper.GestureRecognizerListener {
@@ -230,13 +231,29 @@ class CameraFragment : Fragment(),
 
     }
 
+    var gestureResults = mutableListOf<String>()
+
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
         var result = resultBundle.results.first().gestures()
         if(result.isNotEmpty()) {
             var cat: String = result.first().first().categoryName()
 //            MainActivity.updateCaption(cat)
-            System.out.println(cat)
+//            System.out.println(cat)
+
+            //tiap ke detect, masukin ke list gestureResults
+            gestureResults.add(cat)
+            if(gestureResults.size >= 15){
+                //ambil 10 terakhir dari list
+                gestureResults = gestureResults.subList(gestureResults.size - 10, gestureResults.size)
+                //cek kalo isinya sama semua
+                if(gestureResults.all{it.equals(gestureResults.get(0))}){
+                    //callback buat ganti text di MainActivity
+                    (activity as? CaptionCallback)?.onNewCaptionDetected(cat)
+                    gestureResults.clear()
+                }
+            }
         }
+
 
     }
 }
