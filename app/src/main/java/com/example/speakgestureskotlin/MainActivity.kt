@@ -2,26 +2,24 @@ package com.example.speakgestureskotlin
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.commit
+import androidx.navigation.fragment.NavHostFragment
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
-import com.example.speakgestureskotlin.ml.BisindoModelV9
-import org.tensorflow.lite.DataType
-import org.tensorflow.lite.support.image.TensorImage
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.nio.ByteBuffer
 
-class MainActivity : Activity() {
+
+class MainActivity : FragmentActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var flash: Boolean = false
     private var tts: Boolean = false
-
-    private lateinit var modelRecognition: BisindoModelV9
 
     private lateinit var camera_manager: CameraManager
     private var camera_id: String? = null
@@ -34,22 +32,20 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        initCamera()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment, CameraFragment()).commit()
 
-        modelRecognition = BisindoModelV9.newInstance(applicationContext)
+        camera_manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 30, 1662), DataType.FLOAT32)
+        try {
+            val cameraIdList = camera_manager.cameraIdList
+            if (cameraIdList.isNotEmpty()) {
+                camera_id = cameraIdList[0]
+            }
+        } catch (e: CameraAccessException) {
+            Toast.makeText(this, "Couldn't access camera", Toast.LENGTH_SHORT).show()
+        }
 
-        val outputs = modelRecognition.process(inputFeature0)
-        val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-
-//        modelRecognition.setRecognitionListener { recognizedText ->
-//            updateCaption(recognizedText)
-//        }
-
-
-
-        binding.flashButton.setOnClickListener{
+        binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
             if (camera_id != null) {
@@ -61,7 +57,7 @@ class MainActivity : Activity() {
             }
         }
 
-        binding.ttsButton.setOnClickListener{
+        binding.ttsButton.setOnClickListener {
             tts = !tts
             binding.ttsButton.isSelected = tts
         }
@@ -71,10 +67,10 @@ class MainActivity : Activity() {
         setContentView(binding.root)
     }
 
-    private fun updateCaption(newText: String) {
+    fun updateCaption(newText: String) {
         cc_text += " $newText"
 
-        if (cc_text.split(" ").size > cc_maxWords) {
+        if (cc_text.split(" ").size > 3) {
             cc_text = newText
         }
 
@@ -85,19 +81,8 @@ class MainActivity : Activity() {
         handler.postDelayed({
             cc_text = ""
             binding.closedCaption.text = ""
-        }, cc_timeout)
+        }, 3000)
     }
 
-    private fun initCamera() {
-        camera_manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        try {
-            val cameraIdList = camera_manager.cameraIdList
-            if (cameraIdList.isNotEmpty()) {
-                camera_id = cameraIdList[0]
-            }
-        } catch (e: CameraAccessException) {
-            Toast.makeText(this, "Couldn't access camera", Toast.LENGTH_SHORT).show()
-        }
-    }
 }
