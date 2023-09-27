@@ -16,13 +16,14 @@
 package com.example.speakgestureskotlin
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -55,6 +56,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = currentCameraLens
+    private lateinit var cameraManager: CameraManager
 
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
@@ -116,6 +118,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 //            adapter = gestureRecognizerResultAdapter
         }
 
+        cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -138,6 +142,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                 gestureRecognizerListener = this
             )
         }
+
+
 
     }
 
@@ -219,12 +225,12 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 
     }
 
-    var gestureResults = mutableListOf<String>()
+    private var gestureResults = mutableListOf<String>()
 
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
-        var result = resultBundle.results.first().gestures()
+        val result = resultBundle.results.first().gestures()
         if (result.isNotEmpty()) {
-            var cat: String = result.first().first().categoryName()
+            val cat: String = result.first().first().categoryName()
 //            MainActivity.updateCaption(cat)
 //            System.out.println(cat)
 
@@ -235,7 +241,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                 gestureResults =
                     gestureResults.subList(gestureResults.size - 10, gestureResults.size)
                 //cek kalo isinya sama semua
-                if (gestureResults.all { it.equals(gestureResults.get(0)) }) {
+                if (gestureResults.all { it == gestureResults[0] }) {
                     //callback buat ganti text di MainActivity
                     (activity as? CaptionCallback)?.onNewCaptionDetected(cat)
                     gestureResults.clear()
@@ -244,5 +250,4 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
         }
 
     }
-
 }
