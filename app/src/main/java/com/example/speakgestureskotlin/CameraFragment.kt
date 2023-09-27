@@ -16,7 +16,10 @@
 package com.example.speakgestureskotlin
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -55,6 +58,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = currentCameraLens
+    private lateinit var cameraManager: CameraManager
 
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
@@ -116,6 +120,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 //            adapter = gestureRecognizerResultAdapter
         }
 
+        cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
@@ -138,6 +144,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                 gestureRecognizerListener = this
             )
         }
+
+
 
     }
 
@@ -246,8 +254,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
     }
 
     override fun toggleFlash(state: Boolean) {
-        val cameraControl = camera?.cameraControl
-        cameraControl?.enableTorch(state)
+        cameraManager.setTorchMode(cameraManager.cameraIdList[0], state)
     }
 
 }
