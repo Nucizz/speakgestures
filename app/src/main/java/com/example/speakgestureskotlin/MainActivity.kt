@@ -9,6 +9,7 @@ import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.FragmentActivity
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
 import java.util.*
@@ -20,7 +21,9 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
     private var tts: Boolean = false
 
     private lateinit var binding: ActivityMainBinding
+
     private var flash: Boolean = false
+    private lateinit var cameraManager: CameraManager
 
     private var currentCameraLens = CameraSelector.LENS_FACING_FRONT
 
@@ -53,11 +56,12 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
                 .replace(R.id.fragment_view, CameraFragment(currentCameraLens)).commit()
         }
 
+        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
         binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
-            val camFragment = CameraFragment(currentCameraLens)
-            camFragment.toggleFlash(flash)
+            cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
         }
 
         binding.ttsButton.setOnClickListener {
@@ -131,10 +135,6 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
             Toast.makeText(this, "Speech language is not supported!", Toast.LENGTH_SHORT).show()
             tts_service!!.language = Locale.US
         }
-    }
-
-    interface CameraFlash {
-        fun toggleFlash(state: Boolean)
     }
 
 }

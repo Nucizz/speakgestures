@@ -37,7 +37,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class CameraFragment(currentCameraLens: Int) : Fragment(),
-    GestureRecognizerHelper.GestureRecognizerListener, MainActivity.CameraFlash {
+    GestureRecognizerHelper.GestureRecognizerListener {
 
     companion object {
         private const val TAG = "Hand gesture recognizer"
@@ -243,11 +243,6 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
             }
         }
 
-    }
-
-    override fun toggleFlash(state: Boolean) {
-        val cameraControl = camera?.cameraControl
-        cameraControl?.enableTorch(state)
     }
 
 }
