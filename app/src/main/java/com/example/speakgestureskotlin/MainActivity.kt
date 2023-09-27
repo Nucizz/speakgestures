@@ -1,32 +1,33 @@
 package com.example.speakgestureskotlin
 
-import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.view.View
 import android.widget.Toast
+import androidx.camera.core.CameraSelector
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.commit
-import androidx.navigation.fragment.NavHostFragment
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
+import java.util.*
 
 
-class MainActivity : FragmentActivity(), CaptionCallback {
+class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitListener {
+
+    private var tts_service: TextToSpeech? = null
+    private var tts: Boolean = false
 
     private lateinit var binding: ActivityMainBinding
     private var flash: Boolean = false
-    private var tts: Boolean = false
 
-    private lateinit var camera_manager: CameraManager
-    private var camera_id: String? = null
+    private var currentCameraLens = CameraSelector.LENS_FACING_FRONT
 
-    private val cc_maxWords = 10
+    private val cc_maxWords = 15
     private var cc_text = ""
-    private var cc_timeout = 3000L
+    private var cc_current = ""
+    private var timer: CountDownTimer? = null
 
     private var captionListener: CaptionCallback? = null
 
@@ -34,29 +35,29 @@ class MainActivity : FragmentActivity(), CaptionCallback {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-        supportFragmentManager.beginTransaction().replace(R.id.fragment, CameraFragment()).commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_view, CameraFragment(currentCameraLens)).commit()
 
-        camera_manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        tts_service = TextToSpeech(this, this)
 
-        try {
-            val cameraIdList = camera_manager.cameraIdList
-            if (cameraIdList.isNotEmpty()) {
-                camera_id = cameraIdList[0]
+        binding.cameraButton.setOnClickListener {
+            if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
+                currentCameraLens = CameraSelector.LENS_FACING_BACK
+                binding.flashButton.visibility = View.VISIBLE
+            } else {
+                currentCameraLens = CameraSelector.LENS_FACING_FRONT
+                binding.flashButton.visibility = View.GONE
             }
-        } catch (e: CameraAccessException) {
-            Toast.makeText(this, "Couldn't access camera", Toast.LENGTH_SHORT).show()
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_view, CameraFragment(currentCameraLens)).commit()
         }
 
         binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
-            if (camera_id != null) {
-                try {
-                    camera_manager.setTorchMode(camera_id!!, flash)
-                } catch (e: CameraAccessException) {
-                    Toast.makeText(this, "Couldn't turn on flash", Toast.LENGTH_SHORT).show()
-                }
-            }
+            val camFragment = CameraFragment(currentCameraLens)
+            camFragment.toggleFlash(flash)
         }
 
         binding.ttsButton.setOnClickListener {
@@ -72,34 +73,68 @@ class MainActivity : FragmentActivity(), CaptionCallback {
     }
 
     private fun updateCaption(newText: String) {
-        cc_text += " $newText"
+        if (!newText.equals(cc_current)) {
+            cc_current = newText
 
-        if (cc_text.split(" ").size > 3) {
-            cc_text = newText
+            if (tts) {
+                tts_service!!.speak(newText, TextToSpeech.QUEUE_FLUSH, null, "")
+            }
+
+            cc_text += " $newText"
+
+            if (cc_text.split(" ").size > cc_maxWords) {
+                cc_text = newText
+            }
+
+            runOnUiThread {
+                binding.closedCaption.visibility = View.VISIBLE
+                binding.closedCaption.text = cc_text
+
+                // Cancel the previous timer, if any
+                timer?.cancel()
+
+                // Start a new timer to clear the caption after 3 seconds
+                timer = object : CountDownTimer(3000, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        // Do nothing on tick
+                    }
+
+                    override fun onFinish() {
+                        runOnUiThread {
+                            cc_text = ""
+                            binding.closedCaption.text = ""
+                            binding.closedCaption.visibility = View.GONE
+                        }
+                    }
+                }
+                timer?.start()
+            }
         }
-
-//        System.out.println(cc_text)
-
-        //harus diganti di Thread UI, kalo ga error
-        runOnUiThread{
-            binding.closedCaption.text = cc_text
-        }
-
-//        binding.closedCaption.text = cc_text
-
-//        val handler = Handler(Looper.getMainLooper())
-//        handler.removeCallbacksAndMessages(null)
-//        handler.postDelayed({
-//            cc_text = ""
-//            binding.closedCaption.text = ""
-//        }, 3000)
     }
 
     //implementasi callback CaptionCallback
     override fun onNewCaptionDetected(gesture: String) {
         updateCaption(gesture)
-//        System.out.println(gesture)
     }
 
+    override fun onDestroy() {
+        if (tts_service != null) {
+            tts_service!!.stop()
+            tts_service!!.shutdown()
+        }
+        super.onDestroy()
+    }
+
+    override fun onInit(status: Int) {
+        val result = tts_service!!.setLanguage(Locale("id", "ID"))
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            Toast.makeText(this, "Speech language is not supported!", Toast.LENGTH_SHORT).show()
+            tts_service!!.language = Locale.US
+        }
+    }
+
+    interface CameraFlash {
+        fun toggleFlash(state: Boolean)
+    }
 
 }

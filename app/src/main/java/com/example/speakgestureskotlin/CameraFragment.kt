@@ -18,33 +18,26 @@ package com.example.speakgestureskotlin
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.speakgestureskotlin.databinding.FragmentCameraBinding
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.gesturerecognizer.GestureRecognizerResult
 import java.util.*
-import java.util.Locale.Category
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
-class CameraFragment : Fragment(),
-    GestureRecognizerHelper.GestureRecognizerListener {
+class CameraFragment(currentCameraLens: Int) : Fragment(),
+    GestureRecognizerHelper.GestureRecognizerListener, MainActivity.CameraFlash {
 
     companion object {
         private const val TAG = "Hand gesture recognizer"
@@ -57,13 +50,11 @@ class CameraFragment : Fragment(),
 
     private lateinit var gestureRecognizerHelper: GestureRecognizerHelper
     private val viewModel: MainViewModel by activityViewModels()
-    private var defaultNumResults = 1
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
-    private lateinit var cc_widget: TextView
+    private var cameraFacing = currentCameraLens
 
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
@@ -72,9 +63,6 @@ class CameraFragment : Fragment(),
         super.onResume()
         // Make sure that all permissions are still present, since the
         // user could have removed them while the app was in paused state.
-        if (!PermissionsFragment.hasPermissions(requireContext())) {
-            requireActivity().supportFragmentManager.beginTransaction().replace(R.id.fragment, CameraFragment()).commit()
-        }
 
         // Start the GestureRecognizerHelper again when users come back
         // to the foreground.
@@ -235,18 +223,19 @@ class CameraFragment : Fragment(),
 
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
         var result = resultBundle.results.first().gestures()
-        if(result.isNotEmpty()) {
+        if (result.isNotEmpty()) {
             var cat: String = result.first().first().categoryName()
 //            MainActivity.updateCaption(cat)
 //            System.out.println(cat)
 
             //tiap ke detect, masukin ke list gestureResults
             gestureResults.add(cat)
-            if(gestureResults.size >= 15){
+            if (gestureResults.size >= 10) {
                 //ambil 10 terakhir dari list
-                gestureResults = gestureResults.subList(gestureResults.size - 10, gestureResults.size)
+                gestureResults =
+                    gestureResults.subList(gestureResults.size - 10, gestureResults.size)
                 //cek kalo isinya sama semua
-                if(gestureResults.all{it.equals(gestureResults.get(0))}){
+                if (gestureResults.all { it.equals(gestureResults.get(0)) }) {
                     //callback buat ganti text di MainActivity
                     (activity as? CaptionCallback)?.onNewCaptionDetected(cat)
                     gestureResults.clear()
@@ -254,6 +243,11 @@ class CameraFragment : Fragment(),
             }
         }
 
-
     }
+
+    override fun toggleFlash(state: Boolean) {
+        val cameraControl = camera?.cameraControl
+        cameraControl?.enableTorch(state)
+    }
+
 }
