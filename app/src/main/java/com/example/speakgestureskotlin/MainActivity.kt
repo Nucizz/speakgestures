@@ -2,6 +2,7 @@ package com.example.speakgestureskotlin
 
 import android.content.Context
 import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -24,6 +25,8 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
 
     private var flash: Boolean = false
     private lateinit var cameraManager: CameraManager
+    private var cameraId: String? = null
+    private var flashAvailability: Boolean = false
 
     private var currentCameraLens = CameraSelector.LENS_FACING_FRONT
 
@@ -46,7 +49,9 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
         binding.cameraButton.setOnClickListener {
             if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
                 currentCameraLens = CameraSelector.LENS_FACING_BACK
-                binding.flashButton.visibility = View.VISIBLE
+                if(flashAvailability) {
+                    binding.flashButton.visibility = View.VISIBLE
+                }
             } else {
                 currentCameraLens = CameraSelector.LENS_FACING_FRONT
                 binding.flashButton.visibility = View.GONE
@@ -58,10 +63,24 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
 
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
+        for (id in cameraManager.cameraIdList) {
+            val characteristics = cameraManager.getCameraCharacteristics(id)
+            if (characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true) {
+                flashAvailability = true
+                cameraId = id
+            }
+        }
+
         binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
-            cameraManager.setTorchMode(cameraManager.cameraIdList[0], true)
+            cameraId?.let { id ->
+                try {
+                    cameraManager.setTorchMode(id, flash)
+                } catch (e: CameraAccessException) {
+                    e.printStackTrace()
+                }
+            }
         }
 
         binding.ttsButton.setOnClickListener {
