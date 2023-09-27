@@ -118,6 +118,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 //            adapter = gestureRecognizerResultAdapter
         }
 
+        fragmentCameraBinding.overlay.clear()
+
         cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         // Initialize our background executor
@@ -231,8 +233,19 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
         val result = resultBundle.results.first().gestures()
         if (result.isNotEmpty()) {
             val cat: String = result.first().first().categoryName()
-//            MainActivity.updateCaption(cat)
-//            System.out.println(cat)
+
+            activity?.runOnUiThread{
+                // Pass necessary information to OverlayView for drawing on the canvas
+                fragmentCameraBinding.overlay.setResults(
+                    resultBundle.results.first(),
+                    resultBundle.inputImageHeight,
+                    resultBundle.inputImageWidth,
+                    RunningMode.LIVE_STREAM
+                )
+
+                // Force a redraw
+                fragmentCameraBinding.overlay.invalidate()
+            }
 
             //tiap ke detect, masukin ke list gestureResults
             gestureResults.add(cat)

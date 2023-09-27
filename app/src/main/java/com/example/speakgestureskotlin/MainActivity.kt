@@ -24,9 +24,6 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
     private lateinit var binding: ActivityMainBinding
 
     private var flash: Boolean = false
-    private lateinit var cameraManager: CameraManager
-    private var cameraId: String? = null
-    private var flashAvailability: Boolean = false
 
     private var currentCameraLens = CameraSelector.LENS_FACING_FRONT
 
@@ -34,8 +31,6 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
     private var cc_text = ""
     private var cc_current = ""
     private var timer: CountDownTimer? = null
-
-    private var captionListener: CaptionCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,9 +44,7 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
         binding.cameraButton.setOnClickListener {
             if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
                 currentCameraLens = CameraSelector.LENS_FACING_BACK
-                if(flashAvailability) {
-                    binding.flashButton.visibility = View.VISIBLE
-                }
+                binding.flashButton.visibility = View.VISIBLE
             } else {
                 currentCameraLens = CameraSelector.LENS_FACING_FRONT
                 binding.flashButton.visibility = View.GONE
@@ -61,26 +54,9 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
                 .replace(R.id.fragment_view, CameraFragment(currentCameraLens)).commit()
         }
 
-        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        for (id in cameraManager.cameraIdList) {
-            val characteristics = cameraManager.getCameraCharacteristics(id)
-            if (characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true) {
-                flashAvailability = true
-                cameraId = id
-            }
-        }
-
         binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
-            cameraId?.let { id ->
-                try {
-                    cameraManager.setTorchMode(id, flash)
-                } catch (e: CameraAccessException) {
-                    e.printStackTrace()
-                }
-            }
         }
 
         binding.ttsButton.setOnClickListener {
