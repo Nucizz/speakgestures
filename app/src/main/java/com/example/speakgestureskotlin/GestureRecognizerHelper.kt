@@ -67,6 +67,7 @@ class GestureRecognizerHelper(
                     .setMinTrackingConfidence(minHandTrackingConfidence)
                     .setMinHandPresenceConfidence(minHandPresenceConfidence)
                     .setRunningMode(runningMode)
+                    .setNumHands(2)
 
             if (runningMode == RunningMode.LIVE_STREAM) {
                 optionsBuilder

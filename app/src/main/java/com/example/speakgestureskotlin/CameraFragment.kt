@@ -118,8 +118,6 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 //            adapter = gestureRecognizerResultAdapter
         }
 
-        fragmentCameraBinding.overlay.clear()
-
         cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         // Initialize our background executor
@@ -231,6 +229,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
 
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
         val result = resultBundle.results.first().gestures()
+
         if (result.isNotEmpty()) {
             val cat: String = result.first().first().categoryName()
 
@@ -243,8 +242,6 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                     RunningMode.LIVE_STREAM
                 )
 
-                // Force a redraw
-                fragmentCameraBinding.overlay.invalidate()
             }
 
             //tiap ke detect, masukin ke list gestureResults
@@ -257,8 +254,12 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                 if (gestureResults.all { it == gestureResults[0] }) {
                     //callback buat ganti text di MainActivity
                     (activity as? CaptionCallback)?.onNewCaptionDetected(cat)
-                    gestureResults.clear()
+                    fragmentCameraBinding.overlay.invalidate()
                 }
+            }
+        } else {
+            activity?.runOnUiThread {
+                fragmentCameraBinding.overlay.clear()
             }
         }
 

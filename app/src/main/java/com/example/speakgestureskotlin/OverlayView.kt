@@ -32,7 +32,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
 
     private var results: GestureRecognizerResult? = null
-    private var linePaint = Paint()
     private var pointPaint = Paint()
 
     private var scaleFactor: Float = 1f
@@ -45,14 +44,14 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     fun clear() {
         results = null
-        linePaint.reset()
         pointPaint.reset()
         invalidate()
         initPaints()
     }
 
     private fun initPaints() {
-        pointPaint.color = Color.WHITE
+        pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
+        pointPaint.strokeWidth = 15f
         pointPaint.style = Paint.Style.FILL
     }
 

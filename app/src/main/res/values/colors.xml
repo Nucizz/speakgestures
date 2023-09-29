@@ -11,4 +11,6 @@
 
     <color name="bg">#FFFAFA</color>
     <color name="cc_bg">#80000000</color>
+
+    <color name="point">#80FFFFFF</color>
 </resources>
