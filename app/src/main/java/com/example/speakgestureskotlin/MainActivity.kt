@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
 import java.util.*
@@ -25,7 +26,9 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
 
     private var flash: Boolean = false
 
-    private var currentCameraLens = CameraSelector.LENS_FACING_FRONT
+    companion object{
+        var currentCameraLens = CameraSelector.LENS_FACING_FRONT
+    }
 
     private val cc_maxWords = 15
     private var cc_text = ""

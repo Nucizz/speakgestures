@@ -65,9 +65,9 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
         super.onResume()
         // Make sure that all permissions are still present, since the
         // user could have removed them while the app was in paused state.
-
         // Start the GestureRecognizerHelper again when users come back
         // to the foreground.
+
         backgroundExecutor.execute {
             if (gestureRecognizerHelper.isClosed()) {
                 gestureRecognizerHelper.setupGestureRecognizer()
@@ -117,6 +117,8 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
             layoutManager = LinearLayoutManager(requireContext())
 //            adapter = gestureRecognizerResultAdapter
         }
+
+        fragmentCameraBinding.overlay.clear()
 
         cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
@@ -242,6 +244,7 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                     RunningMode.LIVE_STREAM
                 )
 
+                fragmentCameraBinding.overlay.invalidate()
             }
 
             //tiap ke detect, masukin ke list gestureResults
@@ -254,12 +257,16 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
                 if (gestureResults.all { it == gestureResults[0] }) {
                     //callback buat ganti text di MainActivity
                     (activity as? CaptionCallback)?.onNewCaptionDetected(cat)
-                    fragmentCameraBinding.overlay.invalidate()
+                    gestureResults.clear()
+//                    fragmentCameraBinding.overlay.invalidate()
                 }
             }
-        } else {
+        }
+        else {
             activity?.runOnUiThread {
-                fragmentCameraBinding.overlay.clear()
+                if(_fragmentCameraBinding != null){
+                    fragmentCameraBinding.overlay.clear()
+                }
             }
         }
 

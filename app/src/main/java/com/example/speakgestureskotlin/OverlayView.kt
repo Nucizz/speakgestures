@@ -20,7 +20,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
+import androidx.camera.core.CameraSelector
 import androidx.core.content.ContextCompat
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.gesturerecognizer.GestureRecognizerResult
@@ -60,11 +62,22 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results?.let { gestureRecognizerResult ->
             for (landmark in gestureRecognizerResult.landmarks()) {
                 for (normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor,
-                        normalizedLandmark.y() * imageHeight * scaleFactor,
-                        pointPaint
-                    )
+
+                    if(MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT){
+                        canvas.drawPoint(
+                            normalizedLandmark.x() * imageWidth * scaleFactor,
+                            normalizedLandmark.y() * imageHeight * scaleFactor,
+                            pointPaint
+                        )
+                    }else{
+                        canvas.drawPoint(
+                            1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor),
+                            normalizedLandmark.y() * imageHeight * scaleFactor,
+                            pointPaint
+                        )
+                    }
+
+
                 }
             }
         }
