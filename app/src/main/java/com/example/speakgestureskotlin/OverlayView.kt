@@ -63,16 +63,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             for (landmark in gestureRecognizerResult.landmarks()) {
                 for (normalizedLandmark in landmark) {
 
-                    if(MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT){
-                        canvas.drawPoint(
-                            normalizedLandmark.x() * imageWidth * scaleFactor,
-                            normalizedLandmark.y() * imageHeight * scaleFactor,
-                            pointPaint
-                        )
-                    }else{
-                        canvas.drawPoint(
-                            1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor),
-                            normalizedLandmark.y() * imageHeight * scaleFactor,
+                    if (MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
+                        canvas.drawCircle(x, y, pointPaint.strokeWidth, pointPaint)
+                    } else {
+                        canvas.drawCircle(
+                            1.5f * canvas.width - x,
+                            y,
+                            pointPaint.strokeWidth,
                             pointPaint
                         )
                     }

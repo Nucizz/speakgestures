@@ -1,17 +1,11 @@
 package com.example.speakgestureskotlin
 
-import android.content.Context
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.speakgestureskotlin.databinding.ActivityMainBinding
 import java.util.*
