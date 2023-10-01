@@ -53,7 +53,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     private fun initPaints() {
         pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
-        pointPaint.strokeWidth = 15f
+        pointPaint.strokeWidth = 10f
         pointPaint.style = Paint.Style.FILL_AND_STROKE
     }
 
@@ -63,27 +63,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             for (landmark in gestureRecognizerResult.landmarks()) {
                 for (normalizedLandmark in landmark) {
 
-                    if(MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT){
-                        val x = normalizedLandmark.x() * imageWidth * scaleFactor
-                        val y = normalizedLandmark.y() * imageHeight * scaleFactor
+                    val x = if (MainActivity.currentCameraLens == CameraSelector.LENS_FACING_BACK)
+                        1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor)
+                    else normalizedLandmark.x() * imageWidth * scaleFactor
 
-                        // Set the point color and style
-                        pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
-                        pointPaint.style = Paint.Style.FILL
+                    val y = normalizedLandmark.y() * imageHeight * scaleFactor
 
-                        // Draw a circle at the point
-                        canvas.drawCircle(x, y, 15f, pointPaint) // Adjust the circle radius as needed
-                    } else {
-                        val x = 1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor)
-                        val y = normalizedLandmark.y() * imageHeight * scaleFactor
+                    // Set the point color and style
+                    pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
+                    pointPaint.style = Paint.Style.FILL
 
-                        // Set the point color and style
-                        pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
-                        pointPaint.style = Paint.Style.FILL
-
-                        // Draw a circle at the point
-                        canvas.drawCircle(x, y, 10f, pointPaint) // Adjust the circle radius as needed
-                    }
+                    // Draw a circle at the point
+                    canvas.drawCircle(x, y, 10f, pointPaint) // Adjust the circle radius as needed
                 }
             }
         }
