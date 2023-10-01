@@ -54,7 +54,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private fun initPaints() {
         pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
         pointPaint.strokeWidth = 15f
-        pointPaint.style = Paint.Style.FILL
+        pointPaint.style = Paint.Style.FILL_AND_STROKE
     }
 
     override fun draw(canvas: Canvas) {
@@ -63,13 +63,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             for (landmark in gestureRecognizerResult.landmarks()) {
                 for (normalizedLandmark in landmark) {
 
-                    if (MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
-                        canvas.drawCircle(x, y, pointPaint.strokeWidth, pointPaint)
-                    } else {
-                        canvas.drawCircle(
-                            1.5f * canvas.width - x,
-                            y,
-                            pointPaint.strokeWidth,
+                    if(MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT){
+                        canvas.drawPoint(
+                            normalizedLandmark.x() * imageWidth * scaleFactor,
+                            normalizedLandmark.y() * imageHeight * scaleFactor,
+                            pointPaint
+                        )
+                    }else{
+                        canvas.drawPoint(
+                            1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor),
+                            normalizedLandmark.y() * imageHeight * scaleFactor,
                             pointPaint
                         )
                     }
