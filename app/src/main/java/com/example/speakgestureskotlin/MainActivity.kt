@@ -39,12 +39,12 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
         tts_service = TextToSpeech(this, this)
 
         binding.cameraButton.setOnClickListener {
-            if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
-                currentCameraLens = CameraSelector.LENS_FACING_BACK
-                binding.flashButton.visibility = View.VISIBLE
+            binding.flashButton.isSelected = false
+            flash = false
+            currentCameraLens = if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
+                CameraSelector.LENS_FACING_BACK
             } else {
-                currentCameraLens = CameraSelector.LENS_FACING_FRONT
-                binding.flashButton.visibility = View.GONE
+                CameraSelector.LENS_FACING_FRONT
             }
 
             supportFragmentManager.beginTransaction()
@@ -54,6 +54,23 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
         binding.flashButton.setOnClickListener {
             flash = !flash
             binding.flashButton.isSelected = flash
+
+            if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
+                currentCameraLens = CameraSelector.LENS_FACING_BACK
+
+                binding.frontFlash.visibility = if (flash) {
+                     View.VISIBLE
+                } else {
+                    View.GONE
+                }
+            } else {
+                currentCameraLens = CameraSelector.LENS_FACING_FRONT
+
+                val cameraFragment = supportFragmentManager.findFragmentById(R.id.fragment_view)
+                if (cameraFragment is CameraFragment) {
+                    cameraFragment.toggleFlash(flash)
+                }
+            }
         }
 
         binding.ttsButton.setOnClickListener {
@@ -69,7 +86,7 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
     }
 
     private fun updateCaption(newText: String) {
-        if (!newText.equals(cc_current)) {
+        if (newText != cc_current || cc_text.isEmpty()) {
             cc_current = newText
 
             if (tts) {

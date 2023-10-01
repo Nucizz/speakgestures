@@ -16,9 +16,7 @@
 package com.example.speakgestureskotlin
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.res.Configuration
-import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -56,7 +54,6 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraFacing = currentCameraLens
-    private lateinit var cameraManager: CameraManager
 
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
@@ -119,8 +116,6 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
         }
 
         fragmentCameraBinding.overlay.clear()
-
-        cameraManager = requireContext().getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
@@ -236,15 +231,17 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
             val cat: String = result.first().first().categoryName()
 
             activity?.runOnUiThread{
-                // Pass necessary information to OverlayView for drawing on the canvas
-                fragmentCameraBinding.overlay.setResults(
-                    resultBundle.results.first(),
-                    resultBundle.inputImageHeight,
-                    resultBundle.inputImageWidth,
-                    RunningMode.LIVE_STREAM
-                )
+                if(_fragmentCameraBinding != null) {
+                    // Pass necessary information to OverlayView for drawing on the canvas
+                    fragmentCameraBinding.overlay.setResults(
+                        resultBundle.results.first(),
+                        resultBundle.inputImageHeight,
+                        resultBundle.inputImageWidth,
+                        RunningMode.LIVE_STREAM
+                    )
 
-                fragmentCameraBinding.overlay.invalidate()
+                    fragmentCameraBinding.overlay.invalidate()
+                }
             }
 
             //tiap ke detect, masukin ke list gestureResults
@@ -270,5 +267,11 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
             }
         }
 
+    }
+
+    fun toggleFlash(state: Boolean) {
+        if(cameraFacing == CameraSelector.LENS_FACING_BACK) {
+            camera?.cameraControl?.enableTorch(state)
+        }
     }
 }
