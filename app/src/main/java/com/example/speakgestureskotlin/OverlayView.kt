@@ -64,20 +64,26 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 for (normalizedLandmark in landmark) {
 
                     if(MainActivity.currentCameraLens == CameraSelector.LENS_FACING_FRONT){
-                        canvas.drawPoint(
-                            normalizedLandmark.x() * imageWidth * scaleFactor,
-                            normalizedLandmark.y() * imageHeight * scaleFactor,
-                            pointPaint
-                        )
-                    }else{
-                        canvas.drawPoint(
-                            1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor),
-                            normalizedLandmark.y() * imageHeight * scaleFactor,
-                            pointPaint
-                        )
+                        val x = normalizedLandmark.x() * imageWidth * scaleFactor
+                        val y = normalizedLandmark.y() * imageHeight * scaleFactor
+
+                        // Set the point color and style
+                        pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
+                        pointPaint.style = Paint.Style.FILL
+
+                        // Draw a circle at the point
+                        canvas.drawCircle(x, y, 15f, pointPaint) // Adjust the circle radius as needed
+                    } else {
+                        val x = 1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor)
+                        val y = normalizedLandmark.y() * imageHeight * scaleFactor
+
+                        // Set the point color and style
+                        pointPaint.color = ContextCompat.getColor(context!!, R.color.point)
+                        pointPaint.style = Paint.Style.FILL
+
+                        // Draw a circle at the point
+                        canvas.drawCircle(x, y, 10f, pointPaint) // Adjust the circle radius as needed
                     }
-
-
                 }
             }
         }
