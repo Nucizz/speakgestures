@@ -56,16 +56,13 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
             binding.flashButton.isSelected = flash
 
             if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
-                currentCameraLens = CameraSelector.LENS_FACING_BACK
-
-                binding.frontFlash.visibility = if (flash) {
-                     View.VISIBLE
+                if (flash) {
+                    Toast.makeText(this, "Set screen brightness to max.", Toast.LENGTH_SHORT).show()
+                    binding.frontFlash.visibility =  View.VISIBLE
                 } else {
-                    View.GONE
+                    binding.frontFlash.visibility = View.GONE
                 }
             } else {
-                currentCameraLens = CameraSelector.LENS_FACING_FRONT
-
                 val cameraFragment = supportFragmentManager.findFragmentById(R.id.fragment_view)
                 if (cameraFragment is CameraFragment) {
                     cameraFragment.toggleFlash(flash)

@@ -13,12 +13,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <View
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/front_flash"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/front_flash"
-        android:visibility="gone"/>
+        android:visibility="gone">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:background="@drawable/front_flash_top"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Right rectangle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:background="@drawable/front_flash_right"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Bottom rectangle -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:background="@drawable/front_flash_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Left rectangle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:background="@drawable/front_flash_left"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -39,12 +76,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-                android:id="@+id/flash_button"
+            android:id="@+id/flash_button"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:adjustViewBounds="true"
             android:background="@drawable/flash"
-            android:visibility="gone"
             app:layout_constraintHorizontal_bias="0"
             android:layout_marginLeft="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -83,6 +119,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="2dp"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"
