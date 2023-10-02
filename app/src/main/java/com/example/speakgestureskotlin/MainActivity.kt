@@ -41,6 +41,8 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
         binding.cameraButton.setOnClickListener {
             binding.flashButton.isSelected = false
             flash = false
+            binding.frontFlash.visibility = View.GONE
+
             currentCameraLens = if (currentCameraLens == CameraSelector.LENS_FACING_FRONT) {
                 CameraSelector.LENS_FACING_BACK
             } else {
