@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -64,6 +65,8 @@ class PermitActivity : AppCompatActivity() {
             } else {
                 // Handle the case where permissions are denied
                 // You can show a message to the user or take other appropriate action
+                Toast.makeText(this, "Camera is needed to translate!", Toast.LENGTH_LONG).show()
+
                 finish()
             }
         }
