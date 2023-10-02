@@ -104,7 +104,7 @@ class MainActivity : FragmentActivity(), CaptionCallback, TextToSpeech.OnInitLis
                 timer?.cancel()
 
                 // Start a new timer to clear the caption after 3 seconds
-                timer = object : CountDownTimer(3000, 1000) {
+                timer = object : CountDownTimer(6000, 1000) {
                     override fun onTick(millisUntilFinished: Long) {
                         // Do nothing on tick
                     }
