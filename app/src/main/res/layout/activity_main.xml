@@ -9,6 +9,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_view"
+        android:name="com.example.speakgestureskotlin.CameraFragment"
         android:background="@color/purple_200"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

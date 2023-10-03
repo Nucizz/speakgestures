@@ -64,7 +64,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 for (normalizedLandmark in landmark) {
 
                     val x = if (MainActivity.currentCameraLens == CameraSelector.LENS_FACING_BACK)
-                        1.5f * canvas.width - (normalizedLandmark.x() * imageWidth * scaleFactor)
+                        (1 - normalizedLandmark.x()) * imageWidth * scaleFactor
                     else normalizedLandmark.x() * imageWidth * scaleFactor
 
                     val y = normalizedLandmark.y() * imageHeight * scaleFactor

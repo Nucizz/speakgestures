@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit
 class CameraFragment(currentCameraLens: Int) : Fragment(),
     GestureRecognizerHelper.GestureRecognizerListener {
 
+    constructor() : this(CameraSelector.LENS_FACING_FRONT)
+
     companion object {
         private const val TAG = "Hand gesture recognizer"
     }
@@ -274,4 +276,5 @@ class CameraFragment(currentCameraLens: Int) : Fragment(),
             camera?.cameraControl?.enableTorch(state)
         }
     }
+
 }
